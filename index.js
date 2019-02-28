@@ -13,10 +13,26 @@ server.get("/api/users", (req, res) => {
       res.status(200).json(users);
     })
     .catch(err => {
-      req.cancel();
       res
         .status(500)
         .json({ error: "The users information could not be retrieved" });
+    });
+});
+
+server.get("/api/users/:id", (req, res) => {
+  const id = req.params.id;
+  db.findById(id)
+    .then(user => {
+      if (user.id) res.status(200).json({ user });
+      else
+        res
+          .status(404)
+          .json({ message: "The user with the specified ID does not exist." });
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .json({ error: "The user information could not be retrieved" });
     });
 });
 
@@ -30,7 +46,6 @@ server.post("/api/users", (req, res) => {
     db.insert(user)
       .then(response => res.status(200).json(response))
       .catch(err => {
-        req.cancel();
         res.status(500).json({
           error: "There was an error while saving the user to the database"
         });
