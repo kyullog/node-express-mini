@@ -7,6 +7,7 @@ const PORT = "2525";
 
 server.use(express.json());
 
+//Get all users endpoint
 server.get("/api/users", (req, res) => {
   db.find()
     .then(users => {
@@ -19,15 +20,18 @@ server.get("/api/users", (req, res) => {
     });
 });
 
+//Get user by ID endpoint
 server.get("/api/users/:id", (req, res) => {
   const id = req.params.id;
   db.findById(id)
     .then(user => {
-      if (user.id) res.status(200).json({ user });
-      else
+      if (user) {
+        res.status(200).json({ user });
+      } else {
         res
           .status(404)
           .json({ message: "The user with the specified ID does not exist." });
+      }
     })
     .catch(err => {
       res
@@ -36,6 +40,7 @@ server.get("/api/users/:id", (req, res) => {
     });
 });
 
+//Add user POST endpoint
 server.post("/api/users", (req, res) => {
   const user = req.body;
   if (!user.name || !user.bio) {
@@ -44,13 +49,29 @@ server.post("/api/users", (req, res) => {
       .json({ errorMessage: "Please provide name and bio for the user" });
   } else {
     db.insert(user)
-      .then(response => res.status(200).json(response))
+      .then(response => res.status(201).json(response))
       .catch(err => {
         res.status(500).json({
           error: "There was an error while saving the user to the database"
         });
       });
   }
+});
+
+//Delete user by ID endpoint
+server.delete("/api/users/:id", (req, res) => {
+  const id = req.params.id;
+  db.remove(id)
+    .then(user => {
+      if (user.id === "0") {
+        res
+          .status(404)
+          .json({ error: "The user with the specified ID does not exist" });
+      } else {
+        res.status(200).json({ "Users deleted": user.id });
+      }
+    })
+    .catch(err => res.json({ err }));
 });
 
 server.listen(PORT, () => {
