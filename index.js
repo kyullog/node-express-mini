@@ -74,6 +74,31 @@ server.delete("/api/users/:id", (req, res) => {
     .catch(err => res.status(500).json({ err }));
 });
 
+//Edit user entry endpoint DONE
+server.put("/api/users/:id", (req, res) => {
+  const id = req.params.id;
+  const user = req.body;
+  if (!user.name || !user.bio) {
+    res
+      .status(400)
+      .json({ errorMessage: "Please provide name and bio for the user." });
+  } else {
+    db.update(id, user)
+      .then(changes => {
+        if (changes) {
+          res.status(200).json({ changes });
+        } else {
+          res.status(404).json({
+            errorMessage: "The user with the specified ID does not exist"
+          });
+        }
+      })
+      .catch(err => {
+        res.status(500).json({ error: "The user could not be modified" });
+      });
+  }
+});
+
 server.listen(PORT, () => {
   console.log(`Server is listening at port ${PORT}!`);
 });
