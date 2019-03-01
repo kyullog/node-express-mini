@@ -7,7 +7,7 @@ const PORT = "2525";
 
 server.use(express.json());
 
-//Get all users endpoint
+//Get all users endpoint DONE
 server.get("/api/users", (req, res) => {
   db.find()
     .then(users => {
@@ -20,7 +20,7 @@ server.get("/api/users", (req, res) => {
     });
 });
 
-//Get user by ID endpoint
+//Get user by ID endpoint DONE
 server.get("/api/users/:id", (req, res) => {
   const id = req.params.id;
   db.findById(id)
@@ -40,7 +40,7 @@ server.get("/api/users/:id", (req, res) => {
     });
 });
 
-//Add user POST endpoint
+//Add user POST endpoint DONE
 server.post("/api/users", (req, res) => {
   const user = req.body;
   if (!user.name || !user.bio) {
@@ -58,20 +58,20 @@ server.post("/api/users", (req, res) => {
   }
 });
 
-//Delete user by ID endpoint
+//Delete user by ID endpoint DONE
 server.delete("/api/users/:id", (req, res) => {
   const id = req.params.id;
   db.remove(id)
     .then(user => {
-      if (user.id === "0") {
+      if (user) {
+        res.status(200).json("User deleted");
+      } else {
         res
           .status(404)
           .json({ error: "The user with the specified ID does not exist" });
-      } else {
-        res.status(200).json({ "Users deleted": user.id });
       }
     })
-    .catch(err => res.json({ err }));
+    .catch(err => res.status(500).json({ err }));
 });
 
 server.listen(PORT, () => {
